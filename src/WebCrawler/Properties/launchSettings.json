@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WebCrawler": {
+      "commandName": "Project",
+      "commandLineArgs": "https://crawlme.monzo.com --parallel 32"
+    }
+  }
+}

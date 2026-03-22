@@ -1,5 +1,8 @@
 using System.Net;
 using System.Text;
+using WebCrawler.Enums;
+using WebCrawler.Services;
+using Xunit;
 
 namespace WebCrawler.Tests;
 

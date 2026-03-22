@@ -3,5 +3,5 @@ namespace WebCrawler;
 public sealed class CrawlerOptions
 {
     public required Uri StartUrl { get; init; }
-    public int MaxConcurrency { get; init; } = 4;
+    public int MaxConcurrency { get; init; } = 8;
 }

@@ -1,3 +1,6 @@
+using WebCrawler.Enums;
+using Xunit;
+
 namespace WebCrawler.Tests;
 
 public class CrawlStateTests

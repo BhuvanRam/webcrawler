@@ -1,5 +1,7 @@
-namespace WebCrawler;
+using Serilog;
+using WebCrawler.Services;
 
+namespace WebCrawler;
 public sealed class Crawler
 {
     private readonly CrawlState _state;
@@ -19,6 +21,11 @@ public sealed class Crawler
     {
         var allowedHost = _options.StartUrl.Host;
         var normalizedStart = UrlNormalizer.Normalize(_options.StartUrl);
+        Log.Information(
+            "Crawl starting. AllowedHost={AllowedHost}, MaxConcurrency={MaxConcurrency}, Start={Start}",
+            allowedHost,
+            _options.MaxConcurrency,
+            normalizedStart);
         _state.Seed(normalizedStart);
 
         while (true)
@@ -27,14 +34,18 @@ public sealed class Crawler
             if (batch.Count == 0)
                 break;
 
+            Log.Information("Processing batch of {Count} URL(s)", batch.Count);
             var tasks = batch.Select(url => ProcessOneAsync(url, allowedHost, cancellationToken));
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
+
+        Log.Information("Crawl finished.");
     }
 
     private async Task ProcessOneAsync(string normalizedUrl, string allowedHost, CancellationToken cancellationToken)
     {
         var requestUri = new Uri(normalizedUrl);
+        Log.Information("GET {Url}", normalizedUrl);
         FetchResult? result;
         try
         {
@@ -47,21 +58,21 @@ public sealed class Crawler
         catch (Exception ex)
         {
             _state.MarkFailed(normalizedUrl);
-            Console.WriteLine($"FAILED: {normalizedUrl} ({ex.Message})");
+            Log.Warning(ex, "FAILED: {Url}", normalizedUrl);
             return;
         }
 
         if (result == null)
         {
             _state.MarkFailed(normalizedUrl);
-            Console.WriteLine($"FAILED: {normalizedUrl} (fetch failed or not HTML)");
+            Log.Warning("FAILED: {Url} (fetch failed or not HTML)", normalizedUrl);
             return;
         }
 
         if (!UrlNormalizer.IsSameHost(result.FinalUri, allowedHost))
         {
             _state.MarkFailed(normalizedUrl);
-            Console.WriteLine($"FAILED: {normalizedUrl} (redirected outside allowed host)");
+            Log.Warning("FAILED: {Url} (redirected outside allowed host)", normalizedUrl);
             return;
         }
 
@@ -82,11 +93,9 @@ public sealed class Crawler
 
     private static void PrintPage(string visitedUrl, IReadOnlyList<string> links)
     {
-        Console.WriteLine($"VISIT: {visitedUrl}");
-        Console.WriteLine("Links:");
+        Log.Information("VISIT: {VisitedUrl}", visitedUrl);
+        Log.Information("Links:");
         foreach (var link in links)
-            Console.WriteLine($"  {link}");
-
-        Console.WriteLine();
+            Log.Information("  {Link}", link);
     }
 }

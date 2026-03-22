@@ -1,4 +1,4 @@
-namespace WebCrawler;
+namespace WebCrawler.Enums;
 
 public enum UrlState
 {

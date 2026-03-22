@@ -1,4 +1,4 @@
-namespace WebCrawler;
+namespace WebCrawler.Services;
 
 public sealed class FetchResult
 {

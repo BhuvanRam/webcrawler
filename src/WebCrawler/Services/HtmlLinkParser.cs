@@ -1,6 +1,6 @@
 using AngleSharp.Html.Parser;
 
-namespace WebCrawler;
+namespace WebCrawler.Services;
 
 public sealed class HtmlLinkParser
 {

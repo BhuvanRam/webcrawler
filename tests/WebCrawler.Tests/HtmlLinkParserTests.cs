@@ -1,3 +1,6 @@
+using WebCrawler.Services;
+using Xunit;
+
 namespace WebCrawler.Tests;
 
 public class HtmlLinkParserTests

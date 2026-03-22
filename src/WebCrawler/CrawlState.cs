@@ -1,3 +1,5 @@
+using WebCrawler.Enums;
+
 namespace WebCrawler;
 
 public sealed class CrawlState
@@ -33,17 +35,14 @@ public sealed class CrawlState
     {
         lock (_gate)
         {
-            var batch = new List<string>();
-            foreach (var pair in _states)
-            {
-                if (pair.Value != UrlState.Discovered)
-                    continue;
+            var batch = _states
+                .Where(p => p.Value == UrlState.Discovered)
+                .Take(maxCount)
+                .Select(p => p.Key)
+                .ToList();
 
-                _states[pair.Key] = UrlState.InProgress;
-                batch.Add(pair.Key);
-                if (batch.Count >= maxCount)
-                    break;
-            }
+            foreach (var key in batch)
+                _states[key] = UrlState.InProgress;
 
             return batch;
         }
