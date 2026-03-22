@@ -1,0 +1,250 @@
+---
+description: Minimal C# .NET CLI web crawler—same-domain crawling, bounded concurrency, in-memory state, optional Docker run support, no persistence
+globs: *
+alwaysApply: true
+---
+
+# Web Crawler (C# .NET CLI)
+
+## Objective
+
+Build a simple web crawler as a small, well-scoped CLI application.
+
+Focus on:
+- clarity over complexity
+- correctness over completeness
+- maintainability over overengineering
+
+---
+
+## Scope
+
+This project is intentionally scoped as a small, single-process CLI tool.
+
+The focus is on:
+- clean design
+- predictable behavior
+- bounded concurrency
+- readable and maintainable code
+
+Production-scale infrastructure and distributed concerns are intentionally out of scope.
+
+---
+
+## Technology Requirements
+
+- Language: **C#**
+- Runtime: **.NET**
+- Application type: **CLI**
+
+Do not generate UI, web servers, or hosted services.
+
+---
+
+## Core Requirements
+
+The solution must:
+
+- accept a starting URL as input
+- crawl only URLs within the allowed domain scope
+- avoid revisiting the same URL
+- print:
+  - each visited URL
+  - the links found on that page
+- use bounded concurrency in a simple and explainable way
+
+---
+
+## Design Constraints
+
+- single-process CLI application only
+- in-memory data structures only
+- no database or persistence layer
+- no distributed systems
+- no external crawling frameworks
+
+Allowed libraries:
+- HTTP client
+- HTML parsing
+
+Do not use libraries that perform crawling automatically.
+
+---
+
+## Data and State Rules
+
+- use dictionary/map-based lookup for efficient URL tracking
+- each URL must have a clear lifecycle state
+- do not rely on a single boolean such as `IsVisited`
+
+Preferred states:
+- Discovered
+- InProgress
+- Completed
+- Failed
+
+The model should make concurrent behavior easy to reason about.
+
+---
+
+## Concurrency Rules
+
+- use simple bounded concurrency (e.g. fixed number of parallel tasks)
+- keep concurrency easy to explain and reason about
+- prefer simple control flow (batching or equivalent)
+
+Do not implement:
+- nested async task trees
+- worker queues
+- pub-sub systems
+- complex schedulers
+
+If unsure:
+- choose the simplest working solution
+- avoid unnecessary concurrency complexity
+
+---
+
+## URL Handling Rules
+
+- use standard .NET URI parsing
+- resolve relative URLs correctly
+- filter out URLs outside the allowed domain scope
+- deduplicate URLs before processing
+
+Keep normalization simple and practical.
+
+Do not build a complex URL canonicalization system.
+
+---
+
+## Error Handling
+
+- use simple retry logic if needed (bounded attempts)
+- clearly mark failed URLs
+- avoid infinite retries
+
+Do not implement:
+- dead letter queues
+- complex recovery workflows
+- distributed retry systems
+
+---
+
+## Logging and Output
+
+- use simple console output
+- clearly show:
+  - current URL being processed
+  - links discovered on that page
+
+No dashboards, metrics platforms, or alerting systems.
+
+---
+
+## Code Structure Guidelines
+
+Keep responsibilities clearly separated:
+
+- Fetcher → retrieves HTML content
+- Parser → extracts links from HTML
+- Crawler → orchestrates crawl process
+- State → tracks URL lifecycle and results
+
+Prefer:
+- small, focused classes
+- clear naming
+- readable logic
+- minimal abstractions
+
+---
+
+## Testing Scope
+
+Include reasonable test coverage:
+
+- unit tests for parsing logic
+- basic tests for crawler behavior
+
+Do not overbuild:
+- performance testing frameworks
+- complex integration environments
+- excessive mocking layers
+
+---
+
+## Docker Support
+
+Docker support is allowed for local execution and packaging of the CLI.
+
+Allowed:
+- a simple `Dockerfile`
+- optional `.dockerignore`
+- ability to run the crawler through Docker with command-line arguments
+
+Constraints:
+- Docker should only package and run the CLI
+- do not add docker-compose unless clearly necessary
+- do not add container orchestration
+- do not introduce extra infrastructure for logging, monitoring, or persistence
+
+Keep Docker setup minimal and easy to run.
+
+---
+
+## What Not to Build
+
+Do not implement:
+
+- message queues (Kafka, pub-sub, etc.)
+- databases (SQL, DynamoDB, etc.)
+- dashboards or monitoring systems
+- container orchestration
+- advanced retry frameworks
+- distributed crawling systems
+- robots.txt compliance unless explicitly required
+
+These can be mentioned as future improvements but should not be implemented.
+
+---
+
+## Trade-offs
+
+When making design decisions:
+
+- prefer simplicity over completeness
+- prioritise a working, clean solution
+- document trade-offs rather than overengineering
+- optimise for clarity in explanation and maintenance
+
+---
+
+## AI Assistant Instructions
+
+When generating code:
+
+- produce **C# .NET CLI** code only
+- keep the implementation minimal and clean
+- avoid unnecessary abstractions
+- do not introduce production infrastructure
+- keep dependencies lightweight
+- ensure the code is easy to explain in a review
+- Docker support may be included, but only for packaging and running the CLI locally
+
+If unsure:
+- choose the simplest working solution
+- avoid adding new components unless clearly necessary
+
+---
+
+## Future Considerations (Do Not Implement)
+
+Potential extensions for a larger system:
+
+- distributed crawling using queues
+- persistent storage for crawl state
+- lease-based retry and rescheduling
+- rate limiting and politeness policies
+- robots.txt compliance
+- monitoring and observability
+- containerized production deployment beyond simple local CLI packaging
